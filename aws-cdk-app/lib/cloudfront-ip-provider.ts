@@ -1,4 +1,19 @@
 // lib/cloudfront-ip-provider.ts
+/**
+ * File: cloudfront-ip-provider.ts
+ * Date: 2025-03-27
+ * Author: Gaganjit Singh Hattar
+ * Description: Script to fetch CloudFront IPs dynamically using custom resource
+ * 
+ * Change History:
+ * -----------------------------------------------------------------------------
+ * Date         | Author                 | Description
+ * -----------------------------------------------------------------------------
+ * 2025-03-27   | Gaganjit Singh Hattar  | Initial creation of CDK app structure
+ * -----------------------------------------------------------------------------
+ * 
+ * © 2025 Gaganjit Singh Hattar. All rights reserved.
+ */
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cr from 'aws-cdk-lib/custom-resources';
