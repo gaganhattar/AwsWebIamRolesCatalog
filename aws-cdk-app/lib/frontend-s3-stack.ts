@@ -80,6 +80,20 @@ export class FrontendS3Stack extends cdk.Stack {
       ]
    });
 
+   // Add bucket policy for secure CloudFront access using OAC
+   this.bucket.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowCloudFrontServiceAccess',
+      effect: iam.Effect.ALLOW,
+      principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+      actions: ['s3:GetObject'],
+      resources: [`${this.bucket.bucketArn}/*`],
+      conditions: {
+        StringEquals: {
+          'AWS:SourceArn': 'arn:aws:cloudfront::${cdk.Aws.ACCOUNT_ID}:distribution/*'
+        }
+      }
+    }));
+
    // Optional: Add bucket policy for IAM role-based access
    this.bucket.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'FrontendTeamReadWriteAccess',
@@ -95,6 +109,11 @@ export class FrontendS3Stack extends cdk.Stack {
          `${this.bucket.bucketArn}/*`
       ]
    }));
+
+   new logs.LogGroup(this, 'FrontendS3OperationsLogGroup', {
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
 
   }
 }

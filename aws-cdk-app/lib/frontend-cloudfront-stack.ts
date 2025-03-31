@@ -20,6 +20,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import { OriginAccessControl } from 'aws-cdk-lib/aws-cloudfront';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { FrontendSecurityStack } from './frontend-security-stack';
 import { Construct } from 'constructs';
@@ -53,11 +54,24 @@ export class FrontendCloudFrontStack extends cdk.Stack {
       ],
     });
 
+    // Define Origin Access Control (OAC) for secure S3 access
+    const oac = new OriginAccessControl(this, 'FrontendS3OAC', {
+      originAccessControlConfig: {
+        name: 'FrontendStaticAssetsOAC',
+        originAccessControlOriginType: 's3',
+        signingBehavior: 'always',
+        signingProtocol: 'sigv4',
+      }
+    });
+
+
     // Create CloudFront distribution with S3 as default origin and ALB as additional route
     this.distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
       defaultBehavior: {
         // Serve static content from S3
-        origin: new origins.S3Origin(props.siteBucket),
+        origin: new origins.S3Origin(props.siteBucket, {
+        originAccessControl: oac,
+        )},
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
